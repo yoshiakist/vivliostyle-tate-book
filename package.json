@@ -1,0 +1,24 @@
+{
+  "name": "vivliostyle-tate-book",
+  "version": "1.0.0",
+  "description": "Markdown（VFM）で書いた原稿から、vivliostyle で縦組みの PDF と EPUB をつくる書籍テンプレート。原稿自体が「vivliostyle で電子書籍を作るには」の解説書になっている。",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf .vivliostyle",
+    "prebuild": "npm run clean",
+    "build": "vivliostyle build",
+    "prebuild-epub": "npm run clean",
+    "build-epub": "vivliostyle build -o \"output/book.epub\" -f epub --reading-progression rtl -T css/print.css css/epub.css",
+    "prepreview": "npm run clean",
+    "preview": "vivliostyle preview",
+    "count": "node .claude/skills/count-manuscript/count.mjs"
+  },
+  "author": "Yoshiaki Sato",
+  "license": "ISC",
+  "dependencies": {
+    "@vivliostyle/cli": "^11.1.0",
+    "hast-util-to-string": "^2.0.0",
+    "unist-util-visit": "^4.1.2",
+    "unist-util-visit-parents": "^5.1.3"
+  }
+}

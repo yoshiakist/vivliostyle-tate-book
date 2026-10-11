@@ -1,0 +1,171 @@
+@charset "UTF-8";
+
+/* EPUB 専用の上書き。`npm run build-epub` のときだけ print.css の後ろに読み込まれる
+   （package.json の -T css/print.css css/epub.css）。PDF ビルドには影響しない。
+
+   EPUB はリフロー型なので、print.css の @page（版面・ノンブル・改ページ）は全て無効。
+   ここでの仕事は 2 つ。
+     ① 縦組みを、古い WebKit 系リーダでも確実に効かせる。
+     ② 紙の版面を前提にした絶対長（Q＝1/4mm で固定した字送り・42字の行長）を、
+        画面と読者のフォントサイズ設定に追従する相対値へ置き換える。 */
+
+/* ① 縦組み。多くの EPUB リーダは古い WebKit ベースで、-epub- / -webkit- の
+   プレフィックスが無いと writing-mode を解釈しない。またリーダの既定スタイルは
+   html に当たることが多いので html にも指定する。text-orientation は指定しない
+   （指定すると欧文まで正立して1字ずつ縦積みになる）。 */
+html,
+body {
+  -epub-writing-mode: vertical-rl;
+  -webkit-writing-mode: vertical-rl;
+  writing-mode: vertical-rl;
+}
+
+/* print.css の body は @page の版面に載る前提（break-before:page で頁を起こす）。
+   リフローには頁が無いので解除する。 */
+/* 天地（ページ端）の余白。EPUB に @page は無いが、ここは制御できる。
+   縦組みではページの天地＝インライン方向（行の伸びる向き）なので、
+   body の物理 padding-top / padding-bottom が「行の長さ」を決め、
+   **どのページのどの行にも効く**。
+   （対して padding-left / padding-right はブロック方向＝ページ送りの軸なので、
+     流れの最初と最後に一度きりしか効かない。天地の余白には使えない。）
+   ルビが密な段落（引用ブロックなど）は、ルビが行末側へはみ出すぶん
+   天地が詰まって見えるため、紙面より広めに取る。 */
+body {
+  break-before: auto;
+  block-size: auto;
+  margin: 0;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+/* 引用ブロック。ルビの逃げ場を作るため、天地（＝インライン方向）だけ
+   print.css の padding:1em より広げる。左右（ブロック方向）は紙面のまま。 */
+blockquote {
+  padding-top: 1.5em;
+  padding-bottom: 1.5em;
+}
+
+/* ② 行長。print.css は 1 行 42 字を絶対長で固定しているが、画面では
+   はみ出す・余る。auto にして画面の高さいっぱいに流す。
+   （縦組みでは inline-size / height が「行の長さ」にあたる。） */
+div#draft,
+p,
+div.indent-1 p,
+div.indent-2 p,
+div.indent-3 p,
+div.caution p,
+div.question p {
+  inline-size: auto;
+  height: auto;
+}
+
+/* ② 文字サイズ。Q は絶対単位なのでリーダの文字サイズ設定が効かない。
+   16Q を 1rem と読み替えて相対化する（比率は print.css のまま）。 */
+p {
+  font-size: 1rem;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 2.25;
+}
+
+h1 > .title_large {
+  font-size: 3.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  line-height: 1.75;
+}
+
+h2.part {
+  font-size: 1rem;
+  block-size: auto;
+  padding: 0 2em;
+}
+
+h3 {
+  font-size: 1.125rem;
+}
+
+ruby > rt {
+  font-size: 0.41em;
+}
+
+blockquote p {
+  font-size: 0.875rem;
+}
+
+blockquote p span.small_heading {
+  font-size: 0.75rem;
+}
+
+div.caution > span {
+  font-size: 0.875rem;
+}
+
+/* Question ブロックの飾りの「Q」。縦組みでは欧文が自動で横倒しになるので、
+   print.css は transform: rotate(-90deg) で立て直している。EPUB リーダには
+   transform 未対応のものがあるため（超縦書で横倒しのまま）、transform ではなく
+   text-orientation: upright で正立させる。こちらは縦組み系リーダの対応が厚い。 */
+div.question::before {
+  font-size: 3.875rem;
+  /* transform を外すと translate(-50%, 0.3em) の位置補正も失われるので、
+     物理オフセットで置き換える。calc は不要:
+       ・text-orientation:upright の1文字は縦組みでも横組みでも「1em 幅の枠」を
+         占めるので、translate(-50%) ＝ margin-left:-0.5em で置き換えられる。
+         （left:50% と margin-left は writing-mode に関係なく物理左からのずれ。）
+       ・translate の Y 0.3em は top: 0.3em にそのまま移す（em は自分の font-size 基準）。 */
+  transform: none;
+  top: 0.2em;
+  margin-left: -0.5em;
+  -epub-text-orientation: upright;
+  -webkit-text-orientation: upright;
+  text-orientation: upright;
+}
+
+/* 縦方向の余白は行送り（16Q * 1.75）を基準にしていたので em に置き換える。 */
+div.indent-1 p:first-of-type,
+div.indent-2 p:first-of-type,
+div.indent-3 p:first-of-type {
+  padding-block-start: 1.75em;
+}
+
+div.indent-1 p:last-of-type,
+div.indent-2 p:last-of-type,
+div.indent-3 p:last-of-type {
+  padding-block-end: 1.75em;
+}
+
+div.indent-1 p {
+  padding-inline-start: 1em;
+}
+
+div.indent-2 p {
+  padding-inline-start: 2em;
+}
+
+div.indent-3 p {
+  padding-inline-start: 3em;
+}
+
+/* 1ページ大の図版。紙面の版面に合わせた微調整（transform）は
+   リフローでは崩れるので外し、画面に収まる範囲で表示する。
+   サイズ指定に注意: 縦組みでは inline 方向＝縦なので、
+     height / max-height … インライン方向 ＝ ページの「高さ」に対する %。ページ高が
+                            確定しているので % が効く。
+     width  / max-width  … ブロック方向 ＝ 流し方向。ページ送りの軸なので長さが
+                            不定になり、% は解決されず効かない（これが横幅 100% に
+                            ならなかった原因）。
+   したがって「ページいっぱい」は height:100% で指定し、幅は縦横比に任せる。
+   HTML の width="500" 属性は width:auto で無効化する。 */
+.page-image img,
+img {
+  transform: none;
+  height: 100%;
+  width: auto;
+  max-height: 100%;
+}

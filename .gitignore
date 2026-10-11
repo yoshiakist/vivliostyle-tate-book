@@ -1,0 +1,5 @@
+node_modules/
+
+# vivliostyle build artifacts
+.vivliostyle/
+output/

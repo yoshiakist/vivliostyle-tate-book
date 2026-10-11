@@ -1,0 +1,495 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rozha+One&display=swap");
+html {
+  orphans: 1;
+  widows: 1;
+}
+
+body {
+  writing-mode: vertical-rl;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+@page {
+  /* PDFサイズ指定 */
+  size: 148mm 210mm;
+  /* 版面（本文が組版される領域）は、上下左右の余白を明示して決める。
+     版面の幅（文字サイズ×行送り×行数＋約物用のアキ）は @page :left/right の
+     calc に入っている。block-size で版面を指定して残りを auto に任せる方式は、
+     @vivliostyle/cli 11.3 系（core 2.45）で block-size が「高さ」として扱われ、
+     左右のアキが 0 に潰れ、地のアキが広がってノンブルが本文に食い込むため使わない。 */
+  /* ページ端から版面までの天のアキ・地のアキ（ノンブルは地のアキに入る） */
+  margin-top: 15mm;
+  margin-bottom: 15mm;
+
+  /* 以下、マージンボックスに継承される */
+  font-size: 16Q;
+  font-family: "Shippori Mincho B1", "游明朝", "YuMincho", "Noto Serif CJK JP", "Noto Serif JP", serif;
+  vertical-align: top;
+}
+
+@page : first {
+  /* 開始ページ */
+  counter-reset: page 0;
+}
+
+@page :left {
+  /* ページの小口アキ。ノド側でも指定できます */
+  margin-left: 10mm;
+  /* 反対側は「判型の幅 − 版面の幅 − 小口アキ」。版面の幅はここで決まる。 */
+  margin-right: calc(148mm - 10mm - (16Q * 1.75 * 18 + (16Q * 0.4)));
+  /* ページの柱。下部に */
+  @bottom-left {
+    content: counter(page);
+    margin-left: 12Q;
+    margin-bottom: 5mm;
+    width: calc(16Q * 1.75 * 18);
+    writing-mode: horizontal-tb;
+    font-size: 10Q;
+  }
+}
+
+@page :right {
+  /* ページのノドアキ。小口側でも指定できます */
+  margin-right: 10mm;
+  /* 反対側は明示する（理由は @page :left を参照） */
+  margin-left: calc(148mm - 10mm - (16Q * 1.75 * 18 + (16Q * 0.4)));
+  /* border-bottom: 1pt solid black; */
+  /* 右下ノンブル */
+  @bottom-right {
+    content: counter(page);
+    margin-right: 8Q;
+    margin-bottom: 5mm;
+    width: calc(16Q * 1.75 * 18);
+    writing-mode: horizontal-tb;
+    font-size: 10Q;
+  }
+}
+
+html {
+  font-family: "Shippori Mincho B1", "游明朝", "YuMincho", "Noto Serif CJK JP", "Noto Serif JP", serif;
+  font-weight: Medium;
+  text-align: justify;
+  hanging-punctuation: allow-end;
+  text-spacing: none;
+}
+
+body {
+  break-before: page;
+  column-count: 1;
+}
+
+div#draft {
+  inline-size: calc((16Q * 42) + 0.5em);
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+}
+
+/* 表紙 — 版面を無視して紙面全体を覆う1ページ。
+   @page cover で margin を 0 に落とし、block-size（版面幅）の制限とノンブルも外す。 */
+@page cover {
+  size: 148mm 210mm;
+  block-size: auto;
+  margin: 0;
+  @bottom-left {
+    content: none;
+  }
+  @bottom-right {
+    content: none;
+  }
+}
+
+div.cover {
+  page: cover;
+  break-before: avoid;
+  break-after: page;
+  writing-mode: horizontal-tb;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+}
+
+div.cover img {
+  display: block;
+  width: 148mm;
+  height: 210mm;
+  object-fit: cover;
+}
+
+h1 {
+  /* font-weight: Extrabold; */
+  writing-mode: horizontal-tb;
+  width: 100%;
+  text-align: center;
+  font-size: 18Q;
+  text-indent: 0;
+  page-break-before: always;
+  page-break-after: always;
+  line-height: 54Q;
+  letter-spacing: 0.12em;
+  margin-top: 5em;
+}
+
+h1 > .title_large {
+  font-size: 24Q;
+  letter-spacing: 0.25em;
+}
+
+.author {
+  position: absolute;
+  left: 50%;
+  bottom: 5em;
+  transform: translate(-50%,0);
+  font-size: 14Q;
+  font-weight: normal;
+  letter-spacing: normal;
+}
+
+h2 {
+  /* フォント */
+  font-weight: Demibold;
+  /* フォントサイズ */
+  font-size: 24Q;
+  /* 字下げ */
+  text-indent: 3em;
+  /* 直後の改ページ・改段禁止 */
+  page-break-before: always;
+  page-break-after: avoid;
+  line-height: 42Q;
+  margin-left: 2em;
+}
+
+h3 {
+  margin-left: 1.5em;
+  margin-right: 2em;
+  font-size: 18Q;
+  text-indent: 5em;
+}
+
+h2.part {
+  block-size: 80mm;
+  padding: 0mm 35mm;
+  font-weight: bold;
+  font-size: 16Q;
+  page-break-before: always;
+  page-break-after: always;
+  margin-block-end: 4em;
+}
+
+h1 + h2{
+  margin-block-start: 16pt;
+}
+
+ruby > rt {
+  font-size: 6.5Q;
+}
+
+p {
+  font-size: 16Q;
+  line-height: 1.75;
+  inline-size: calc((16Q * 42) + 0.5em);
+  text-indent: 1em;
+  hanging-punctuation: allow-end;
+  line-break: strict;
+  page-break-inside: auto;
+}
+
+/* 行頭が開き括弧の段落は天付き（字下げなし）。
+   クラスは vivliostyle.config.js の markNoIndent がビルド時に自動付与する。 */
+p.no-indent {
+  text-indent: 0;
+}
+
+blockquote {
+  /* 引用・要点のブロックはゴシック体で組む（本文の明朝と差をつける） */
+  font-family: "Noto Sans CJK JP", "Noto Sans JP", "游ゴシック", "YuGothic", sans-serif;
+  padding: 1em;
+  background-color: #fcf7f4;
+  margin-right: 2.5rem;
+  margin-left: 1.5rem;
+  border-radius: 0.5em;
+}
+
+blockquote p{
+  /* 本文の p は行長を 42 字に固定しているが、枠の中では枠の内側に合わせる
+     （固定のままだと、枠より長い行が枠の外へはみ出す）。 */
+  inline-size: auto;
+  font-size: 14Q;
+  line-height: 2.2;
+  letter-spacing: 0.15em;
+  color: #202020;
+}
+
+blockquote p ruby{
+  letter-spacing: 0.1em;
+}
+
+blockquote p span.small_heading{
+  font-size: 11Q;
+  text-indent: 0;
+  display: inline-block;
+  margin-right: 1.5rem;
+  margin-left: 1rem;
+  padding: 0.2rem;
+  background-color: #ffffff;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+}
+
+ul {
+  padding-top: 3em;
+  margin-right: 1rem;
+  margin-left: 1rem;
+}
+
+ul > li {
+  margin-left: 0.5rem;
+}
+
+hr {
+  border: none;
+  border-right: 1pt solid #c0c0c0;
+  height: 6em;
+  margin: auto 4rem;
+}
+
+div.caution {
+  border: 1px solid #909090;
+  margin: 0 2em;
+  padding: 2em 1em;
+  position: relative;
+}
+
+div.caution::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: -6px;
+  right: -6px;
+  border: solid 3px #cbe7b1; /* 外枠のスタイル */
+  z-index: -1;
+}
+
+div.caution > span {
+  background: white;
+  display: inline-block;
+  position: absolute;
+  top: 2em;
+  right: -0.8em;
+  padding: 0.5em 0;
+  font-size: 14Q;
+}
+
+div.caution p {
+  height: 100%;
+}
+
+/* 任意の位置での改ページ（<div class="page-break"></div>）。
+   中身の無い div を置くと、その直後から次のページになる。 */
+div.page-break {
+  break-before: page;
+  page-break-before: always;
+}
+
+div.caution.break {
+  page-break-before: always;
+  page-break-after: avoid;
+}
+
+div.question {
+  position: relative;
+  border: solid 12px #eef7e6; /* 外枠のスタイル */
+  border-radius: 3em;
+  padding: 2em 1.5em;
+  margin-right: 3em;
+}
+
+div.question::before {
+  position: absolute;
+  display: block;
+  content: "Q";
+  top: 0;
+  left: 50%;
+  font-family: "Rozha One", serif;
+  font-size: 62Q;
+  line-height: 1;
+  color: #c0c0c0;
+  text-align: center;
+  transform: translate(-50%, 0.3em) rotate(-90deg);
+}
+
+div.question p {
+  height: calc(100% - 4em);
+  margin-top: 4em;
+  text-indent: 0;
+}
+
+/* 1ページ大の図版（<div class="page-image"><img …></div>）。
+   版面との位置合わせは図版ごとに異なるので、必要ならここで微調整する。 */
+.page-image img {
+  transform: translate(0.7em, -3em);
+}
+
+/* AI エージェント向けの執筆規約ブロック（<div class="rule">）。
+   原稿ファイルの中に常駐させるが、組版には一切出さない。 */
+.rule {
+  display: none;
+}
+
+/* 自動生成される目次（nav#toc）。番号は出さず、各項目を少しだけ寄せる。 */
+nav#toc ol,
+nav#toc ul {
+  list-style: none;
+}
+
+nav#toc li {
+  margin-left: 0.5em;
+}
+
+div.indent-1 p:first-of-type,
+div.indent-2 p:first-of-type,
+div.indent-3 p:first-of-type {
+  padding-block-start: calc(16Q * 1.75);
+}
+
+div.indent-1 p:last-of-type,
+div.indent-2 p:last-of-type,
+div.indent-3 p:last-of-type {
+  padding-block-end: calc(16Q * 1.75);
+}
+
+div.indent-1 p {
+  height: calc((16Q * 42) - 16Q);
+  padding-inline-start: calc(16Q);
+}
+
+div.indent-2 p {
+  height: calc((16Q * 42) - (16Q * 2));
+  padding-inline-start: calc(16Q * 2);
+}
+
+div.indent-3 p {
+  height: calc((16Q * 42) - (16Q * 3));
+  padding-inline-start: calc(16Q * 3);
+}
+
+p.goth {
+  margin-inline-start: 3em;
+  font-family: "游ゴシック", "YuGothic", "Noto Sans CJK JP", "Noto Sans JP", sans-serif;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+}
+
+p.align-rb {
+  text-align: end;
+}
+
+p.goth + p.goth {
+  margin-block-start: -1em;
+}
+
+div.codes {
+  display: inline-block;
+  margin: 3em 1em;
+  writing-mode: horizontal-tb;
+  padding: 1em;
+  font-family: "Courier", monospace;
+  font-size: 0.8em;
+}
+
+div.codes p {
+  text-orientation: sideways;
+}
+
+p.star {
+  text-indent: 3em;
+  margin-right: 16pt;
+  margin-left: 16pt;
+}
+
+/* 縦中横 — span 内の任意の2文字以上を正立のまま1マスに詰める */
+.tcy {
+  text-combine-upright: all;
+}
+
+span.bottom {
+  display: block;
+  float: right;
+}
+
+span.bottom-1 {
+  display: block;
+  float: right;
+  padding-inline-end: 1em;
+}
+
+span.bottom-2 {
+  display: block;
+  float: right;
+  padding-inline-end: 2em;
+}
+
+span.bottom-3 {
+  display: block;
+  float: right;
+  padding-inline-end: 3em;
+}
+
+/* 圏点（<span class="smaller">ゴマ</span>） */
+em.side-dot,
+em.sesame_dot {
+  font-style: normal;
+  -webkit-text-emphasis-style: sesame;
+  text-emphasis-style: sesame;
+  margin-block-start: -1em;
+  display: inline-block;
+}
+
+/*画像＋キャプション*/
+figure {
+  display: block;
+  width: 236pt;
+  -ms-writing-mode: lr-tb;
+  -webkit-writing-mode: horizontal-tb;
+  writing-mode: horizontal-tb;
+}
+
+figure img {
+  width: 100%;
+  height: auto;
+  vertical-align: bottom;
+}
+
+figcaption {
+  text-align: start;
+  font-size: 7pt;
+}
+
+/*奥付*/
+.colophon {
+  font-size: 7pt;
+  margin-right: 48pt;
+}
+/* 級さげ */
+span.smaller {
+  font-size: 6.5pt;
+}
+
+/* 著者自身のメモ（<div class="comment">）。これも組版には出さない。 */
+div.comment {
+  display: none;
+}
+
+p.blank {
+  color: transparent;
+}
+
+span.blank {
+  display: none;
+}
